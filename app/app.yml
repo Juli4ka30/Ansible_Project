@@ -1,0 +1,40 @@
+- name: name of playbook
+  hosts: localhost
+  tasks: 
+    - name: Build webserver image
+      docker_image:
+        name: web-nginx 
+        pull: no
+        build: 
+         path: .
+        source: build
+
+    - name: create image loadbalancer
+      docker_image: 
+        name: loadbalancer-image
+        pull: no
+        build: 
+         path: /mnt/c/Users/IuliiaScheel/Desktop/Java_Schulungsaufgaben/ansible_wiederholung/loadbalancer-config/
+        source: build 
+
+    - name: create a network
+      docker_network:
+       name: network-image
+
+    - name: create docker container for web-app
+      docker_container:
+        name: web-nginx-container{{ item }}
+        image: web-nginx:latest
+        networks:
+          - name: network-image
+      with_sequence: count=4   
+        
+    - name: create docker container for loadbalancer
+      docker_container:
+        name: loadbalancer-cont
+        image: loadbalancer-image:latest
+        networks:
+          - name: network-image
+
+          
+          
